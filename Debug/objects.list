@@ -2,6 +2,7 @@
 "./Core/Src/app_bluenrg.o"
 "./Core/Src/gpio.o"
 "./Core/Src/main.o"
+"./Core/Src/service.o"
 "./Core/Src/stm32f4xx_hal_msp.o"
 "./Core/Src/stm32f4xx_it.o"
 "./Core/Src/stm32f4xx_nucleo_bus.o"

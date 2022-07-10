@@ -55,7 +55,7 @@ Core/Src/app_bluenrg.o: ../Core/Src/app_bluenrg.c \
  ../Middlewares/ST/BlueNRG-2/includes/bluenrg1_l2cap_aci.h \
  ../Middlewares/ST/BlueNRG-2/includes/bluenrg1_hal_aci.h \
  ../Middlewares/ST/BlueNRG-2/includes/bluenrg1_hci_le.h \
- ../Core/Inc/app_bluenrg.h
+ ../Core/Inc/app_bluenrg.h ../Core/Inc/service.h
 ../BlueNRG-2/Target/bluenrg_conf.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -114,3 +114,4 @@ Core/Src/app_bluenrg.o: ../Core/Src/app_bluenrg.c \
 ../Middlewares/ST/BlueNRG-2/includes/bluenrg1_hal_aci.h:
 ../Middlewares/ST/BlueNRG-2/includes/bluenrg1_hci_le.h:
 ../Core/Inc/app_bluenrg.h:
+../Core/Inc/service.h:
