@@ -12,6 +12,7 @@
 #include "bluenrg1_aci.h"
 #include "bluenrg1_hci_le.h"
 #include "app_bluenrg.h"
+#include "service.h"
 
 #define BDADDR_SIZE		6
 
@@ -21,7 +22,7 @@ void bluenrg_init(void)
 {
 	tBleStatus ret;
 	uint8_t bdaddr[BDADDR_SIZE];
-	const char *name = "Vibrometer";
+	const char *name = "Vibrationmeter";
 	uint16_t service_handle, dev_name_char_handle,appearance_char_handle;
 
 	BLUENRG_memcpy(bdaddr, SERVER_BDARR, sizeof(SERVER_BDARR));
@@ -58,6 +59,13 @@ void bluenrg_init(void)
 	}
 
 	/* Add custom service */
+	ret = add_simple_service();
+
+	if(ret != BLE_STATUS_SUCCESS)
+	{
+		printf("add_simple_service : FAILED !! \n\r");
+	}
+
 }
 
 void bluenrg_process(void)
