@@ -9,6 +9,7 @@
 #define INC_SERVICE_H_
 
 tBleStatus add_simple_service(void);
+void APP_UserEvtRx(void *pData);
 
 
 

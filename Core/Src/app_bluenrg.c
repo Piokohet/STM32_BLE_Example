@@ -22,13 +22,13 @@ void bluenrg_init(void)
 {
 	tBleStatus ret;
 	uint8_t bdaddr[BDADDR_SIZE];
-	const char *name = "Vibrationmeter";
+	const char *name = "Vibrat";
 	uint16_t service_handle, dev_name_char_handle,appearance_char_handle;
 
 	BLUENRG_memcpy(bdaddr, SERVER_BDARR, sizeof(SERVER_BDARR));
 
 	/* Initialize HCI */
-	hci_init(NULL,NULL);
+	hci_init(APP_UserEvtRx,NULL);
 
 	/* Reset HCI */
 	hci_reset();
@@ -94,4 +94,6 @@ void bluenrg_process(void)
 		printf("aci_gap_set_discoverable : FAILED !! \n\r");
 	}
 
+    /* Process user event */
+	hci_user_evt_proc();
 }
