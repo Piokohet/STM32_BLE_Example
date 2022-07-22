@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -25,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "app_bluenrg.h"
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,6 +37,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+/*maximum 8bit values*/
+#define EIGHTBIT 256
+/*Length of UART array*/
+#define ARRAYLEN 2048
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,7 +53,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t val[ARRAYLEN]; //values to send via UART1
+uint16_t i,n; //
 
+float FFTInBuffer[ARRAYLEN];
+float FFTOutBuffer[ARRAYLEN];
+
+arm_rfft_fast_instance_f32 FFTHandler;
+
+volatile uint8_t SamplesReady;
+
+uint8_t OutFreqArray[10];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +78,8 @@ int __io_putchar(int ch)
 	return ch;
 }
 
+/* function for FFT calculation */
+void CalculateFFT(void);
 
 /* USER CODE END PFP */
 
@@ -95,8 +116,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   printf("Initialization successful...\n\r");
@@ -104,6 +127,10 @@ int main(void)
 
   /* 1.Enable BLE module */
   bluenrg_init();
+
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t*) val, ARRAYLEN);
+
+  arm_rfft_fast_init_f32(&FFTHandler, ARRAYLEN);
 
   /* USER CODE END 2 */
 
@@ -114,8 +141,20 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	/* 2. Process BLE */
-	  bluenrg_process();
+	  if(SamplesReady == 1)
+	  	  {
+	  		  SamplesReady = 0;
+
+	  		  for(uint32_t i = 0; i < ARRAYLEN; i++)
+	  		  {
+	  			  FFTInBuffer[i] = (float) val[i];
+	  		  }
+
+	  		  CalculateFFT();
+	  		  bluenrg_process();
+	  	  }
+		/* 2. Process BLE */
+
   }
   /* USER CODE END 3 */
 }
@@ -137,13 +176,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 64;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 96;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -160,14 +198,58 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
+	if(hadc->Instance == ADC1)
+	{
+		HAL_UART_Transmit_DMA(&huart2,(uint8_t*)val,ARRAYLEN);
+		SamplesReady = 1;
+	}
+}
+
+float complexABS(float real, float compl) {
+	return sqrtf(real*real+compl*compl);
+}
+
+void CalculateFFT(void)
+{
+	arm_rfft_fast_f32(&FFTHandler, FFTInBuffer, FFTOutBuffer, 0);
+
+	int Freqs[ARRAYLEN];
+	int FreqPoint = 0;
+	int Offset = 45; //variable noise floor offset
+
+	//calculate abs values and linear-to-dB
+	for (int i = 0; i < ARRAYLEN; i = i+2)
+	{
+		Freqs[FreqPoint] = (int)(20*log10f(complexABS(FFTOutBuffer[i], FFTOutBuffer[i+1]))) - Offset;
+
+		if(Freqs[FreqPoint] < 0)
+		{
+			Freqs[FreqPoint] = 0;
+		}
+		FreqPoint++;
+	}
+
+	OutFreqArray[0] = (uint8_t)Freqs[1]; // 22 Hz
+	OutFreqArray[1] = (uint8_t)Freqs[3]; // 63 Hz
+	OutFreqArray[2] = (uint8_t)Freqs[6]; // 125 Hz
+	OutFreqArray[3] = (uint8_t)Freqs[11]; // 250 Hz
+	OutFreqArray[4] = (uint8_t)Freqs[21]; // 500 Hz
+	OutFreqArray[5] = (uint8_t)Freqs[42]; // 1000 Hz
+	OutFreqArray[6] = (uint8_t)Freqs[93]; // 2200 Hz
+	OutFreqArray[7] = (uint8_t)Freqs[189]; // 4500 Hz
+	OutFreqArray[8] = (uint8_t)Freqs[378]; // 9000 Hz
+	OutFreqArray[9] = (uint8_t)Freqs[630]; // 15000 Hz
+
+}
 /* USER CODE END 4 */
 
 /**

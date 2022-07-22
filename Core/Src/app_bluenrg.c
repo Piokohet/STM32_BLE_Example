@@ -20,6 +20,7 @@ uint8_t SERVER_BDARR[] = {0x01,0x02,0x03,0x04,0x05,0x06};
 extern volatile uint8_t set_connectable;
 extern volatile uint8_t connected;
 extern __IO uint8_t send_data;
+extern uint8_t OutFreqArray[10];
 
 void bluenrg_init(void)
 {
@@ -81,18 +82,10 @@ void bluenrg_process(void)
 
 	if(connected)
 	{
-/*
-		if(send_data)
-		{
-*/
-			uint8_t RandData[8] = {0,1,2,3,4,5,6,7};
-			FFT_Update(RandData);
-			HAL_Delay(50);
-/*		}*/
+//		uint8_t RandData[8] = {0,1,2,3,4,5,6,7}; //random data for buffer to send via BLE
+		FFT_Update(OutFreqArray); // sending buffer to BLE characteristic
+//		HAL_Delay(50); // slowing down a little to stop errors
 	}
-
-
-
 
     /* Process user event */
 	hci_user_evt_proc();

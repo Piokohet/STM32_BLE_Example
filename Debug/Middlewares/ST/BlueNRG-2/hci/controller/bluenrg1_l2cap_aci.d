@@ -32,6 +32,9 @@ Middlewares/ST/BlueNRG-2/hci/controller/bluenrg1_l2cap_aci.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
@@ -81,6 +84,9 @@ Middlewares/ST/BlueNRG-2/hci/controller/bluenrg1_l2cap_aci.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
