@@ -9,7 +9,10 @@
 #define INC_SERVICE_H_
 
 tBleStatus add_simple_service(void);
+tBleStatus FFT_Update(uint8_t fft[10]);
 void APP_UserEvtRx(void *pData);
+
+
 
 
 

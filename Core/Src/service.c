@@ -14,11 +14,11 @@ uint8_t CHAR_UUID[16]    = {0x51,0x9D,0xDB,0x0B,0x40,0xAD,0x07,0x55,0x03,0x0A,0x
 
 
 uint16_t my_service_handle,my_char_handle;
-
+__IO uint8_t send_data;
 uint8_t connected = FALSE;
 uint8_t set_connectable = TRUE;
 uint16_t connection_handle = FALSE;
-uint8_t notification_enabled = FALSE;
+uint8_t notification_enabled = TRUE;
 
 tBleStatus add_simple_service(void)
 {
@@ -51,7 +51,7 @@ tBleStatus add_simple_service(void)
                              uint8_t Enc_Key_Size,
                              uint8_t Is_Variable,
                              uint16_t *Char_Handle); */
-	ret = aci_gatt_add_char(my_service_handle, UUID_TYPE_128, &char_uuid, 2, CHAR_PROP_READ, ATTR_PERMISSION_NONE, GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP, 0, 0, &my_char_handle);
+	ret = aci_gatt_add_char(my_service_handle, UUID_TYPE_128, &char_uuid, 12, CHAR_PROP_READ|CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP, 0, 0, &my_char_handle);
 
 
 	return ret;
@@ -77,19 +77,6 @@ void update_data(uint16_t new_data)
 
 
 }
-/*old deprecated version of callbacks*/
-/*void GAP_ConnectionComplete_CB(uint8_t addr[6],uint16_t handle)
-{
-	connected = TRUE;
-	connection_handle = handle;
-
-	printf("Connection complete...\n\r");
-}
-
-void GAP_DisconnectionComplete_CB(void)
-{
-	printf("Disconnection complete...\n\r");
-}*/
 
 void Read_Request_CB(uint16_t handle)
 {
@@ -104,6 +91,33 @@ void Read_Request_CB(uint16_t handle)
 	}
 
 }
+
+/**
+ * @brief  Update FFT characteristic value
+ * @param  uint8_t FFT values
+ * @retval tBleStatus Status
+ */
+tBleStatus FFT_Update(uint8_t fft[10])
+{
+  tBleStatus ret;
+  uint8_t i,buff[10];
+
+  for(i = 0; i < 10; i++)
+  {
+	  buff[i] = fft[i];
+  }
+
+  ret = aci_gatt_update_char_value(my_service_handle, my_char_handle,
+                                   0, 10, buff);
+
+  if (ret != BLE_STATUS_SUCCESS){
+    printf("Error while updating FFT characteristic: 0x%04X\r\n",ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+
+  return BLE_STATUS_SUCCESS;
+}
+
 
 void aci_gatt_read_permit_req_event(uint16_t Connection_Handle,
 									uint16_t Attribute_Handle,

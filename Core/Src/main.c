@@ -54,7 +54,7 @@ void SystemClock_Config(void);
 /* function for debugging messages via USART2 */
 int __io_putchar(int ch)
 {
-	HAL_UART_Transmit(&huart2,((uint8_t *)&ch),1,10);
+	HAL_UART_Transmit(&huart6,((uint8_t *)&ch),1,10);
 
 	return ch;
 }
@@ -96,6 +96,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
   printf("Initialization successful...\n\r");

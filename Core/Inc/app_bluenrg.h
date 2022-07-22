@@ -10,5 +10,6 @@
 
 void bluenrg_init(void);
 void bluenrg_process(void);
+void Set_DeviceConnectable(void);
 
 #endif /* INC_APP_BLUENRG_H_ */

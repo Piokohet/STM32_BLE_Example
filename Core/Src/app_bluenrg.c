@@ -17,12 +17,15 @@
 #define BDADDR_SIZE		6
 
 uint8_t SERVER_BDARR[] = {0x01,0x02,0x03,0x04,0x05,0x06};
+extern volatile uint8_t set_connectable;
+extern volatile uint8_t connected;
+extern __IO uint8_t send_data;
 
 void bluenrg_init(void)
 {
 	tBleStatus ret;
 	uint8_t bdaddr[BDADDR_SIZE];
-	const char *name = "Vibrat";
+	const char *name = "Vibrationmeter";
 	uint16_t service_handle, dev_name_char_handle,appearance_char_handle;
 
 	BLUENRG_memcpy(bdaddr, SERVER_BDARR, sizeof(SERVER_BDARR));
@@ -49,7 +52,7 @@ void bluenrg_init(void)
 		printf("aci_gatt_init : FAILED !! \n\r");
 	}
 	/* Initialize GAP service */
-	aci_gap_init(GAP_PERIPHERAL_ROLE,0,0x07,&service_handle,&dev_name_char_handle,&appearance_char_handle);
+	aci_gap_init(GAP_PERIPHERAL_ROLE,0,0x0E,&service_handle,&dev_name_char_handle,&appearance_char_handle);
 
 	/* Update device name characteristic value */
 	ret = aci_gatt_update_char_value(service_handle,dev_name_char_handle,0,strlen(name),(uint8_t*)name);
@@ -70,30 +73,55 @@ void bluenrg_init(void)
 
 void bluenrg_process(void)
 {
-	tBleStatus ret;
-
-	uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'V','I','B','R','O','M','E','T','E','R'};
-
-	/* Set device in General Discoverable mode */
-
-	/* tBleStatus aci_gap_set_discoverable(uint8_t Advertising_Type,
-                                    uint16_t Advertising_Interval_Min,
-                                    uint16_t Advertising_Interval_Max,
-                                    uint8_t Own_Address_Type,
-                                    uint8_t Advertising_Filter_Policy,
-                                    uint8_t Local_Name_Length,
-                                    uint8_t Local_Name[],
-                                    uint8_t Service_Uuid_length,
-                                    uint8_t Service_Uuid_List[],
-                                    uint16_t Slave_Conn_Interval_Min,
-                                    uint16_t Slave_Conn_Interval_Max); */
-
-	ret = aci_gap_set_discoverable(ADV_IND,0,0,PUBLIC_ADDR,NO_WHITE_LIST_USE,sizeof(local_name), local_name,0,NULL,0,0);
-	if(ret != BLE_STATUS_SUCCESS)
+	if(set_connectable)
 	{
-		printf("aci_gap_set_discoverable : FAILED !! \n\r");
+		Set_DeviceConnectable();
+		set_connectable = FALSE;
 	}
+
+	if(connected)
+	{
+/*
+		if(send_data)
+		{
+*/
+			uint8_t RandData[8] = {0,1,2,3,4,5,6,7};
+			FFT_Update(RandData);
+			HAL_Delay(50);
+/*		}*/
+	}
+
+
+
 
     /* Process user event */
 	hci_user_evt_proc();
 }
+
+void Set_DeviceConnectable(void)
+{
+	tBleStatus ret;
+	uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'V','I','B','R','O','M','E','T','E','R'};
+
+		/* Set device in General Discoverable mode */
+
+		/* tBleStatus aci_gap_set_discoverable(uint8_t Advertising_Type,
+	                                    uint16_t Advertising_Interval_Min,
+	                                    uint16_t Advertising_Interval_Max,
+	                                    uint8_t Own_Address_Type,
+	                                    uint8_t Advertising_Filter_Policy,
+	                                    uint8_t Local_Name_Length,
+	                                    uint8_t Local_Name[],
+	                                    uint8_t Service_Uuid_length,
+	                                    uint8_t Service_Uuid_List[],
+	                                    uint16_t Slave_Conn_Interval_Min,
+	                                    uint16_t Slave_Conn_Interval_Max); */
+
+		ret = aci_gap_set_discoverable(ADV_IND,0,0,PUBLIC_ADDR,NO_WHITE_LIST_USE,sizeof(local_name), local_name,0,NULL,0,0);
+		if(ret != BLE_STATUS_SUCCESS)
+		{
+			printf("aci_gap_set_discoverable : FAILED !! \n\r");
+		}
+}
+
+
