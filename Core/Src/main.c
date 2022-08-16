@@ -56,6 +56,8 @@
 uint8_t val[ARRAYLEN]; //values to send via UART1
 uint16_t i,n; //
 
+//uint16_t BLEcounter;
+
 float FFTInBuffer[ARRAYLEN];
 float FFTOutBuffer[ARRAYLEN];
 
@@ -151,7 +153,13 @@ int main(void)
 	  		  }
 
 	  		  CalculateFFT();
-	  		  bluenrg_process();
+//	  		  BLEcounter++;
+//	  		  if(BLEcounter == 20)
+//	  		  {
+	  			  bluenrg_process();
+//	  			  BLEcounter = 0;
+//	  		  }
+
 	  	  }
 		/* 2. Process BLE */
 

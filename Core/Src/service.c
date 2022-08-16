@@ -51,7 +51,7 @@ tBleStatus add_simple_service(void)
                              uint8_t Enc_Key_Size,
                              uint8_t Is_Variable,
                              uint16_t *Char_Handle); */
-	ret = aci_gatt_add_char(my_service_handle, UUID_TYPE_128, &char_uuid, 12, CHAR_PROP_READ|CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP, 0, 0, &my_char_handle);
+	ret = aci_gatt_add_char(my_service_handle, UUID_TYPE_128, &char_uuid, 10, CHAR_PROP_READ|CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP, 0, 0, &my_char_handle);
 
 
 	return ret;
@@ -100,13 +100,13 @@ void Read_Request_CB(uint16_t handle)
 tBleStatus FFT_Update(uint8_t fft[10])
 {
   tBleStatus ret;
-  uint8_t i,buff[10];
+  uint8_t i,buff[11];
 
   for(i = 0; i < 10; i++)
   {
 	  buff[i] = fft[i];
   }
-
+//  buff[10] = 0xFF;
   ret = aci_gatt_update_char_value(my_service_handle, my_char_handle,
                                    0, 10, buff);
 

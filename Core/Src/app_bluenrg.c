@@ -16,6 +16,7 @@
 
 #define BDADDR_SIZE		6
 
+uint16_t BLEcounter;
 uint8_t SERVER_BDARR[] = {0x01,0x02,0x03,0x04,0x05,0x06};
 extern volatile uint8_t set_connectable;
 extern volatile uint8_t connected;
@@ -83,7 +84,15 @@ void bluenrg_process(void)
 	if(connected)
 	{
 //		uint8_t RandData[8] = {0,1,2,3,4,5,6,7}; //random data for buffer to send via BLE
-		FFT_Update(OutFreqArray); // sending buffer to BLE characteristic
+		BLEcounter++;
+
+		if(BLEcounter == 20)
+		{
+			FFT_Update(OutFreqArray); // sending buffer to BLE characteristic
+			BLEcounter = 0;
+		}
+
+
 //		HAL_Delay(50); // slowing down a little to stop errors
 	}
 
