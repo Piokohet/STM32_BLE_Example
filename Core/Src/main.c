@@ -217,7 +217,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(hadc->Instance == ADC1)
 	{
+//		HAL_GPIO_WritePin(OSCI_GPIO_Port,OSCI_Pin, GPIO_PIN_SET);
 		HAL_UART_Transmit_DMA(&huart2,(uint8_t*)val,ARRAYLEN);
+//		HAL_GPIO_WritePin(OSCI_GPIO_Port,OSCI_Pin, GPIO_PIN_RESET);
 		SamplesReady = 1;
 	}
 }
